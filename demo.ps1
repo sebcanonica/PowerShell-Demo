@@ -65,7 +65,8 @@ function Write-Hello {
     .SYNOPSIS
     Greet someone
     .DESCRIPTION
-    Will greet someone by saying hello to this person on the standard output
+    Will greet someone by saying hello to this person on the
+    standard output
     .PARAMETER Name
     Name of the person to greet
     .EXAMPLE
@@ -107,10 +108,12 @@ Test-StandardOutput 'coucou'
 
 Test-StandardOutput 'coucou' -Verbose
 
-Test-StandardOutput 'coucou' -ErrorAction SilentlyContinue -ErrorVariable MyErrors -WarningAction SilentlyContinue
+Test-StandardOutput 'coucou' -ErrorAction SilentlyContinue `
+    -ErrorVariable MyErrors -WarningAction SilentlyContinue
 "MyErrors $MyErrors"
 
-$Result = Test-StandardOutput 'coucou' 3>&1 -ErrorAction SilentlyContinue
+$Result = Test-StandardOutput 'coucou' 3>&1 {
+    -ErrorAction SilentlyContinue
 "Result $Result"
 
 
@@ -187,6 +190,32 @@ Convert-ByFilter @(1,2,3,4) $EvenPredicate
 # Scope dépend de l'éxecution et les variables sont juste copiées...
 
 
+# Vérification de paramètre
+# -------------------------
+
+function Test-Parameter {
+    [CmdletBinding()]
+    param(
+        [int] $ByType,
+        [PSTypeName('MyPseudoType')] $ByPseudoType,
+        [ValidateCount(1,5)] $ByArrayLength,
+        [ValidateSet('foo','bar')] $ByEnum,
+        [ValidateRange(0,100)] $ByRange,
+        [ValidateScript({ Test-Path $_ } )] $ByArbitraryScript
+    )
+    'tutto va bene'
+}
+
+Test-Parameter -ByType 'fizz'
+Test-Parameter -ByPseudoType ([PSCustomObject]@{ PSTypeName = 'AnotherPseudoType' })
+Test-Parameter -ByArrayLength a,b,c,d,e,f
+Test-Parameter -ByEnum buzz
+Test-Parameter -ByRange -1
+Test-Parameter -ByArbitraryScript c:\dontexist\
+Test-Parameter -ByType 1 -ByPseudoType ([PSCustomObject]@{ PSTypeName = 'MyPseudoType' })  -ByArrayLength a -ByEnum foo -ByRange 1 -ByArbitraryScript c:\Windows\
+
+
+
 # Module perso
 # ------------
 
@@ -203,7 +232,6 @@ Write-Private
 # ...Linter statique
 
 function Foo-Bar {
-
 }
 
 # ...Dynamiques
@@ -234,4 +262,5 @@ Exit-PSSession
 
 Invoke-Command -ComputerName Server1 -ScriptBlock {Get-UICulture}
 
-# Desired State Configuration: décrire l'état souhaité plutôt que les actions à mener
+# Desired State Configuration: décrire l'état souhaité plutôt que
+# les actions à mener
