@@ -50,6 +50,7 @@ Test-Connection
 #   du référencement des commandes
 
 Get-Command
+Get-Command | Measure-Object
 
 Get-Module -List
 
@@ -112,7 +113,7 @@ Test-StandardOutput 'coucou' -ErrorAction SilentlyContinue `
     -ErrorVariable MyErrors -WarningAction SilentlyContinue
 "MyErrors $MyErrors"
 
-$Result = Test-StandardOutput 'coucou' 3>&1 {
+$Result = Test-StandardOutput 'coucou' 3>&1 `
     -ErrorAction SilentlyContinue
 "Result $Result"
 
